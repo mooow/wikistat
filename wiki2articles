@@ -1,0 +1,42 @@
+import re, sys, os
+
+def norm(string):
+    from string import punctuation
+    trans = str.maketrans(punctuation, len(punctuation)*"_")
+    return string.translate(trans)
+
+
+if len(sys.argv) != 3:
+    print("Syntax: {} <input_file> <output_directory>".format(sys.argv[0]), file=sys.stderr)
+    exit(1)
+
+input_file = sys.argv[1]
+output_directory = sys.argv[2]
+
+with open(input_file, 'r') as ifp:
+    out = None
+    i = 0
+    print(i)
+    for line in ifp.readlines():
+        match = re.match('^<doc.*title="(.+)">\n', line)
+        if match:
+            title = match.group(1)
+
+            i += 1
+            print('\r'+i, flush=True, end='')
+
+            title = norm(title)
+            filename = os.path.join(output_directory, title[0:2], title)+"bz2"
+
+            if os.path.exists():
+                out = None
+                continue
+            out = bz2.open(filename, "w", compresslevel=9)
+            continue
+
+        if re.match('</doc>', line):
+            out.close()
+            continue
+
+        if out:
+            out.write(line)

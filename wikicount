@@ -1,0 +1,36 @@
+import sys, re, pickle, operator
+
+def norm(string):
+    string = string.lower()
+    from string import punctuation, whitespace
+    rem = punctuation + whitespace
+    trans = str.maketrans(rem, len(rem)*" ")
+    return string.translate(trans)
+
+if len(sys.argv) != 2:
+    print("Syntax: {} <file>".format(sys.argv[0]), file=sys.stderr)
+    exit(1)
+
+N = 1386076
+dic = {}
+with open(sys.argv[1], 'r') as file:
+    i = 0
+    for line in file:
+        if re.match('<doc', line):
+            i += 1
+            print('\r{} {:.3f}%'.format(i, 100*i/N), end='', flush=True)
+            continue
+        if re.match('</doc', line): continue
+        line = norm(line)
+        for word in line.split(' '):
+            if word in dic:
+                dic[word] += 1
+            else:
+                dic[word] = 1
+
+sorted_list = sorted(dic.items(), key = operator.itemgetter(1))
+
+with open("sorted_list_i.pickle", "wb") as f:
+    pickle.dump(sorted_list, f)
+
+print("done")

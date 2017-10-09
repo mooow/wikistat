@@ -1,0 +1,60 @@
+import pickle, bz2, operator
+
+def dist_ss(string1, string2):
+    sim = 0
+    minsize = min(len(string1), len(string2))
+    maxsize = max(len(string1), len(string2))
+    for i in range(minsize):
+        if string1[i] == string2[i]:
+            sim += 1
+        else:
+            break
+    if sim == 0: return 2 * maxsize
+    return maxsize-sim
+
+def dist_bs(base, string):
+    mindist = None
+    minstr = None
+    for b in base:
+        d = dist_ss(b, string)
+        if mindist == None or d < mindist:
+            mindist = d
+            minstr = b
+
+    return (mindist, minstr)
+
+
+sorted_list = []
+with bz2.open("sorted4+_i.txt.bz2", 'r') as f:
+    sorted_list = [ s.decode('utf-8').split(' ')[0] for s in f.readlines()]
+
+#sorted_list = sorted(sorted_list, key=operator.itemgetter(0))
+
+
+base = []
+N = len(sorted_list)
+i = 0
+for string in sorted_list:
+    i += 1
+    #print('\r{:.2f}%'.format(100*i/N), end='')
+
+    if len(string.strip()) == 0: continue
+    if base == []:
+        base.append(string)
+        continue
+    dist, sstr = dist_bs(base, string)
+    if dist >= 2:
+        base.append(string)
+        if len(base) == 7776: break
+    #else:
+        #print("Discarding {} because of {} (dist={})".format(string, sstr, dist))
+
+
+print("Saving sorted_ib.pickle...", end='', flush=True)
+with open("base7776_i4+.pickle", "wb") as f:
+    pickle.dump(base, f)
+print("[done]\n")
+
+with bz2.open('base7776_i4+.txt.bz2', 'wb') as f:
+    for b in base:
+        f.write("{}\n".format(b).encode("utf-8"))

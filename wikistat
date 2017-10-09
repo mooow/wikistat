@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import requests, json, lxml.html
+
+class WikiStat:
+    API_URL = "https://{}.wikipedia.org/w/api.php"
+
+    def __init__(self, lang='en'):
+        self.url = self.API_URL.format(lang)
+
+    def _api_url(self):
+        return
+
+    def all_pages(self):
+        apcontinue = ""
+        while True:
+            data = requests.get(self.url, params = {
+                'action': 'query',
+                'format': 'json',
+                'list': 'allpages',
+                'apcontinue': apcontinue,
+                'apnamespace': 0,
+                'apfilterredir': 'nonredirects'
+            }).json()
+            apcontinue = data['continue']['apcontinue']
+            for page in data['query']['allpages']:
+                yield page['title']
+
+    def get_page(self, title):
+        data = requests.get(self.url, params = {
+            'action': 'parse',
+            'page': title,
+            'format': 'json',
+            'prop': 'text'
+        }).json()
+
+        html = data['parse']['text']['*']
+        doc = lxml.html.document_fromstring(html)
+        text = doc.text_content()
+        return text
+
+
+def test():
+    w = WikiStat('it')
+    txt = w.get_page('Alghero')
+    print(txt)
+
+if __name__ == '__main__': test()

@@ -1,0 +1,38 @@
+import pickle, bz2, Levenshtein
+
+print("Loading pickle...", end='', flush=True)
+sorted_list = None
+with open("sorted_list_i.pickle", "rb") as f:
+    sorted_list = pickle.load(f)
+print("[done]\n")
+
+
+#~ List with every word
+# N = len(sorted_list)
+# i = 0
+# print("List with every word...")
+# with bz2.open("sorted_list_i.txt.bz2", 'w') as f:
+#     for element in reversed(sorted_list):
+#         if len(element[0]) > 0:
+#             f.write("{} {}\n".format(*element).encode("utf-8"))
+#         i += 1
+#         print('\r{:.2f}%'.format(i/N*100), end='')
+# print("[done]\n")
+
+#~ List with only words with at least 4 characters
+sorted_list[:] = [a for a,b in sorted_list]
+N = len(sorted_list)
+i = 0
+M = 9000
+print("List with only words with at least 5 characters...")
+with bz2.open("base_li5+.txt.bz2", 'w') as f:
+    while i < M and len(sorted_list) > 0:
+        element = sorted_list.pop()
+        if len(element.strip()) < 5: continue
+        #print("Adding {}".format(element))
+        i += 1
+        print('\r{}/{}'.format(i,M), end='', flush=True)
+        sorted_list[:] = [ x for x in sorted_list if
+                                    Levenshtein.distance(element, x) > 1 ]
+        f.write((element+'\n').encode('utf-8'))
+print("[done]")
