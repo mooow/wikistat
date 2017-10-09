@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+'''
+Takes a (single, concatenated) wikiextractor file.
+Puts each Page in a single file named as its title.
+Can be improved.
+'''
+
 import re, sys, os
 
 def norm(string):

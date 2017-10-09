@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+''' A naive attempt at scraping Wikipedia through its API (given up)'''
 
 import requests, json, lxml.html
 
