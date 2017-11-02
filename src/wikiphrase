@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+from random import choices
+from sys import argv
+import bz2
+
+def syntax():
+	print("Syntax: {} <file> <count>".format(argv[0]))
+	print("\nPrints <count> randomly-chosen words from bz2 compressed <file>")
+
+if len(argv) != 3: 
+	syntax()
+	exit(1)
+
+#words = []
+with bz2.open(argv[1], 'r') as file:
+	for line in file:
+		words = [ line.decode('utf-8').strip() for line in file ]
+		#words.append(line.decode('utf-8').strip())
+
+
+print(*choices(words, k = int(argv[2])), sep=', ')
