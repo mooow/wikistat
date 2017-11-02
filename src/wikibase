@@ -26,19 +26,27 @@ Generates a list of words of length ≥ 5 with Levenshtein distance ≥ 2
 '''
 
 import pickle, bz2
+from sys import argv
 from Levenshtein import distance
+
+if len(argv) != 2:
+	print("Usage: {} <words>".format(argv[0]))
+	exit(1)
+
+
 
 print("Loading pickle...", end='', flush=True)
 sorted_list = None
-with bz2.open("sorted_list_i.pickle.bz2", "rb") as f:
+with bz2.open("data/sorted_list_i.pickle.bz2", "rb") as f:
     sorted_list = pickle.load(f)
 print("[done]\n")
 
 
 sorted_list[:] = [a for a,b in sorted_list]
 N = len(sorted_list)
+print("Info: sorted_list contains {} words".format(N))
 i = 0
-M = 9000
+M = int(argv[1])
 
 base = []
 for element in reversed(sorted_list):
@@ -46,12 +54,14 @@ for element in reversed(sorted_list):
     if len(element) < 5: continue
     if base == [] or min([distance(element, i) for i in base]) > 1:
         base.append(element)
-    i += 1
+        i += 1
     print('\r{}/{}≅{}%'.format(i,M,100*i/M), end='', flush=True)
     if i == M: break
+if i != M: 
+	print("WARNING! Only {0} of {1} words found! ({2}%)".format(i,M,i//N))
 
-with bz2.open("base_9000_i5+.pickle.bz2", 'w') as f:
+with bz2.open("output/base_{}_i5+.pickle.bz2".format(M), 'w') as f:
     pickle.dump(base,f)
 
-with bz2.open("base_9000_i5+.txt.bz2", 'w') as f:
+with bz2.open("output/base_{}_i5+.txt.bz2".format(M), 'w') as f:
     for element in base: f.write((element+'\n').encode('utf-8'))
